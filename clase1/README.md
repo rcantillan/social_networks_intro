@@ -11,7 +11,7 @@ web: https://rcantillan.rbind.io
 
 ## Descripción 
 
-https://rcantillan.github.io/slides/thesis_proposal/intro/
+https://rcantillan.github.io/social_networks_intro/clase1/intro/
 
 ## Setup
 
