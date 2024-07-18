@@ -1,0 +1,894 @@
+---
+title: "Estructura social y Ciencia de redes"
+subtitle: ""
+author: "Roberto Cantillan Carrasco"
+date: 'Julio, 2024'
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    chakra: libs/remark-latest.min.js
+    css: xaringan-themer.css
+    seal: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: true
+      ratio: 16:9
+      slideNumberFormat: "%current%"
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{amsthm}
+  - \usepackage{amsmath}
+  - \usepackage{amsfonts}
+  - \usepackage{amscd}
+  - \usepackage{amssymb}
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+options(kableExtra.latex.load_packages = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
+library(kableExtra)
+```
+
+```{r xaringan-themer, include=FALSE}
+library(xaringanthemer)
+style_duo_accent(
+  footnote_font_size = "0.5em",
+  primary_color = "#28282B",
+  #primary_color = "#7393B3",
+  secondary_color = "#2c8475",
+  black_color = "#424242",
+  white_color = "#FFF",
+  base_font_size = "22px",
+  # text_font_family = "Jost",
+  # text_font_url = "https://indestructibletype.com/fonts/Jost.css",
+  header_font_google = google_font("Libre Franklin", "200", "400"),
+  header_font_weight = "200",
+  inverse_header_color = "#eaeaea",
+  title_slide_text_color = "#FFFFFF",
+  text_slide_number_color = "#9a9a9a",
+  text_bold_color =  "#93c47d", #"#4169e1", # "#810541", # "#f79334",
+  code_inline_color = "#B56B6F",
+  code_highlight_color = "transparent",
+  link_color = "#2c8475",
+  table_row_even_background_color = lighten_color("#345865", 0.9),
+  extra_fonts = list(
+    "https://indestructibletype.com/fonts/Jost.css",
+    google_font("Amatic SC", "400")
+  ),
+  colors = c(
+    green = "#31b09e",
+    "green-dark" = "#2c8475",
+    highlight = "#87f9bb",
+    purple = "#887ba3",
+    pink = "#B56B6F",
+    orange = "#D462FF",# "#810541", # "#f79334",
+    red = "#dc322f",
+    `blue-dark` = "#002b36",
+    `text-dark` = "#202020",
+    `text-darkish` = "#424242",
+    `text-mild` = "#606060",
+    `text-light` = "#9a9a9a",
+    `text-lightest` = "#eaeaea"
+  ),
+  extra_css = list(
+    ".remark-slide-content h3" = list(
+      "margin-bottom" = 0, 
+      "margin-top" = 0
+    ),
+    ".smallish, .smallish .remark-code-line" = list(`font-size` = "0.7em")
+  )
+)
+xaringanExtra::use_xaringan_extra(c("tile_view", "animate_css", "tachyons", "share_again"))
+xaringanExtra::use_extra_styles()
+```
+
+```{r metadata, echo=FALSE}
+library(metathis)
+meta() %>% 
+  meta_description("Estructura social y Ciencia de redes, Julio, 2024") %>% 
+  meta_social(
+    title = "Estructura social y Ciencia de redes",
+    url = "https://github.com/rcantillan/slides/tree/main/sna_ses_lab/index",
+    image = "https://github.com/rcantillan/slides/tree/main/sna_ses_lab/intro/home_screen.png",
+    twitter_card_type = "summary_large_image",
+    twitter_creator = "ricantillan"
+  )
+```
+
+```{r components, include=FALSE}
+slides_from_images <- function(
+  path,
+  regexp = NULL,
+  class = "hide-count",
+  background_size = "contain",
+  background_position = "top left"
+) {
+  if (isTRUE(getOption("slide_image_placeholder", FALSE))) {
+    return(glue::glue("Slides to be generated from [{path}]({path})"))
+  }
+  if (fs::is_dir(path)) {
+    imgs <- fs::dir_ls(path, regexp = regexp, type = "file", recurse = FALSE)
+  } else if (all(fs::is_file(path) && fs::file_exists(path))) {
+    imgs <- path
+  } else {
+    stop("path must be a directory or a vector of images")
+  }
+  imgs <- fs::path_rel(imgs, ".")
+  breaks <- rep("\n---\n", length(imgs))
+  breaks[length(breaks)] <- ""
+
+  txt <- glue::glue("
+  class: {class}
+  background-image: url('{imgs}')
+  background-size: {background_size}
+  background-position: {background_position}
+  {breaks}
+  ")
+
+  paste(txt, sep = "", collapse = "")
+}
+options("slide_image_placeholder" = FALSE)
+```
+
+class: left title-slide
+background-image: url('adrien-olichon-9zhsq3o1k60-unsplash.jpg')
+background-size: cover
+background-position: left
+
+
+[ricantillan]: https://twitter.com/ricantillan
+[rbind]: rcantillan
+
+#  
+
+.side-text[
+[&commat;ricantillan][ricantillan] | [rcantillan.rbind.io][rbind]
+]
+
+.title-where[
+### **Estructura social y Ciencia de redes:** 
+### **Introducción a sus principios analíticos**
+Roberto Cantillan <br> 
+Mayo, 2024
+]
+
+```{css echo=FALSE}
+.title-slide h1 {
+  font-size: 70px;
+  font-family: Jost, sans;
+  animation-name: title-text;
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
+}
+
+.side-text {
+  color: white;
+  transform: rotate(90deg);
+  position: absolute;
+  font-size: 18px;
+  top: 150px;
+  right: -110px;
+  transition: opacity 0.5s ease-in-out;
+  animation-name: enter-right;
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
+}
+
+.side-text:hover {
+  opacity: 1;
+}
+
+.side-text a {
+  color: white;
+}
+
+.title-where {
+  font-family: Jost, sans;
+  font-size: 30px;
+  position: absolute;
+  bottom: 30px;
+  animation-name: enter-left;
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+```
+
+---
+class: left middle
+
+### **Introducción**
+
+- "To be social means to be connected to others" [1]
+- El objetivo principal del análisis de redes sociales es construir y evaluar teorías de la estructura social. 
+- La estructura social se define como patrones duraderos de interacción humana y formas de pensar sobre y organizar grupos humanos.
+- Relational strutcure / Normative stucture [2]
+- Barabási amplía esta definición destacando que estamos rodeados de sistemas complejos, desde la sociedad que requiere cooperación entre miles de millones de individuos, hasta las infraestructuras de comunicación que integran miles de millones de teléfonos móviles con ordenadores y satélites [3].
+
+
+.footnote[
+[1] Blau, P. M. (1977). Inequality and Heterogeneity: A Primitive Theory of Social Structure. New York: Free Press.
+
+[2] López, J., & Scott, J. (2000). Social structure. Open University Press.
+
+[3] Barabási, A. L. (2016). Network Science. Cambridge University Press.
+
+]
+
+---
+
+class: left middle
+
+### **Estrategias epistemológicas: Heterarquía**
+
+.w-50.fl[
+### 
+
+- La estrategia de reducción (elementarismo propiamente dicho)
+- La estrategia de construcción o emergencia compositiva
+- La estrategia de la heterarquía o emergencia heterárquica
+- La estrategia de la jerarquía o emergencia jerárquica
+- La estrategia de la trascendencia sistémica (holismo propiamente dicho)
+
+]
+
+.w-50.fr[
+### 
+
+<img src="fig9.png" width="70%" style="display: block; margin: 0 auto;" />
+
+]
+
+.footnote[
+[1] Kontopoulos, K. M. (1993). The Logics of Social Structure. Cambridge University Press.
+
+]
+
+---
+
+class: left middle
+
+### **El análisis estructural  (Wellman, 1988)**
+#### **De la teoría a la sustancia ** 
+
+- El análisis estructural (o de redes) es una forma distintiva de investigación social que aborda analiticamente la estructura social (formalizando) (Wellman, 1988).
+
+- Cinco características paradigmáticas:
+  1. El comportamiento se interpreta en términos de restricciones estructurales sobre la actividad.
+  2. Los análisis se centran en las relaciones entre unidades.
+  3. Se considera cómo las relaciones entre múltiples alters afectan conjuntamente el comportamiento.
+  4. La estructura se trata como una red de redes.
+  5. Los métodos analíticos tratan directamente con la naturaleza relacional de la estructura social.
+
+.footnote[
+[1] Wellman, B. (1988). Structural analysis: From method and metaphor to theory and substance. In B. Wellman & S. D. Berkowitz (Eds.), Social structures: A network approach (pp. 19-61). Cambridge University Press.
+]
+
+---
+
+class: left middle
+
+### **Principios fundamentales del análisis estructural**
+
+1. Las relaciones estructuradas son una fuente más poderosa de explicación sociológica que los atributos personales de los miembros del sistema.
+2. Las normas emergen de la ubicación en sistemas estructurados de relaciones sociales.
+3. Las estructuras sociales determinan el funcionamiento de las relaciones diádicas.
+4. El mundo se compone de redes, no de grupos.
+5. Los métodos estructurales complementan y suplantan los métodos individualistas.
+
+.footnote[
+
+[1] Wellman, B. (1988). Structural analysis: From method and metaphor to theory and substance. In B. Wellman & S. D. Berkowitz (Eds.), Social structures: A network approach (pp. 19-61). Cambridge University Press.]
+
+---
+
+class: left middle
+
+.w-50.fl[
+### 
+
+### **Structural Theory of Action**
+
+1. Capturing an actor's position in a stratified system as the social context of evaluation
+2. Describing the manner in which actor interests are patterned by social structure so captured
+3. Describing the manner in which actions, determined by interests, are constrained by the relational pattern defining a position in social structure
+4. Describing the manner in which actors pursuing their interests in theproposed manner could be responsible for the patterns of relations first observed as social structure
+
+]
+
+.w-50.fr[
+### 
+
+<img src="fig3.jpg" width="80%" style="display: block; margin: 0 auto;" />
+
+
+]
+
+.footnote[
+
+[1] Burt, R. S. (1982). Toward a structural theory of action: Network models of social structure, perception, and action. Academic Press.
+
+]
+
+---
+
+
+class: left middle
+
+.w-50.fl[
+### 
+
+### **Pincipios claves (Knoke, 1994)**
+
+- Las propiedades estructurales de las formaciones sociales son contextos que dan forma a las percepciones, creencias, actitudes y acciones de individuos y colectividades.
+
+- La influencia social y la acción colectiva pueden ser facilitadas y / o restringidas por intercambios (transacciones) directos e indirectos entre actores sociales que poseen recursos diferenciales.
+
+- La incrustación o arraigo (ubicación de los actores dentro de contextos situacionales reales) debe analizarse como procesos dinámicos
+
+
+]
+
+.w-50.fr[
+### 
+
+<img src="fig2.jpg" width="50%" style="display: block; margin: 0 auto;" />
+
+
+]
+
+.footnote[
+
+[1] Knoke, D. (1994). Political networks: The structural perspective (Vol. 4). Cambridge University Press.
+]
+
+---
+
+class: middle right
+background-image: url('adrien-olichon-9zhsq3o1k60-unsplash.jpg')
+background-size: cover
+
+### **Blau space** 
+
+---
+class: left middle
+
+### **Blau I** 
+
+- Blau define la estructura social como la distribución de una población entre posiciones sociales en un espacio multidimensional
+- Parámetros estructurales: Estos son los ejes en el espacio multidimensional de posiciones sociales, que pueden ser nominales (como sexo o raza) o graduados (como educación o ingresos).
+- Formas de diferenciación: Blau identifica dos formas genéricas de diferenciación:
+
+  1) Heterogeneidad: la distribución de personas entre posiciones nominales.
+  
+  2) Desigualdad: la distribución de personas en términos de un criterio de estatus.
+
+
+.footnote[
+[1] Blau, P. M. (1977). A Macrosociological Theory of Social Structure. American Journal of Sociology, 83(1), 26–54.
+]
+---
+class: left middle
+
+### **Blauspace**
+
+.w-50.fl[
+### 
+
+<img src="fig4.png" width="100%" style="display: block; margin: 0 auto;" />
+
+]
+
+.w-50.fr[
+### 
+
+<img src="fig5.png" width="70%" style="display: block; margin: 0 auto;" />
+
+]
+
+
+
+
+---
+class: left middle
+
+### **Blau II**
+
+- Relaciones intergrupales: Blau postula que en las relaciones entre dos grupos, el grupo más pequeño tiene una mayor tasa de participación intergrupal que el grupo más grande.
+
+- Tamaño del grupo: La probabilidad de relaciones intergrupales extensas disminuye con el aumento del tamaño del grupo.
+Efecto paradójico de la discriminación: Cuanto más discrimina una mayoría contra una minoría, menor es la diferencia entre la participación intergrupal de la mayoría y la minoría.
+
+- Heterogeneidad: El aumento de la heterogeneidad promueve las relaciones intergrupales.
+
+- Parámetros intersectantes: Los parámetros que se intersectan promueven las relaciones intergrupales, mientras que los parámetros consolidados las impiden.
+
+.footnote[
+[1] Blau, P. M. (1977). A Macrosociological Theory of Social Structure. American Journal of Sociology, 83(1), 26–54.
+]
+
+---
+
+class: left middle
+
+### **Blau III**
+
+- Diferenciación: La penetración de la diferenciación en las subestructuras promueve las relaciones sociales entre varios segmentos de la sociedad, integrándolos.
+
+- Integración social: Blau la define en términos de la extensión de las asociaciones sociales entre diferentes grupos y estratos.
+
+
+.footnote[
+[1] Blau, P. M. (1977). A Macrosociological Theory of Social Structure. American Journal of Sociology, 83(1), 26–54.
+]
+
+---
+
+class: middle right
+background-image: url('adrien-olichon-9zhsq3o1k60-unsplash.jpg')
+background-size: cover
+
+### **Visualizando la Estructura Social** 
+
+---
+
+class: left middle
+
+### **Visualizando la Estructura Social**
+
+- La estructura social consiste en patrones duraderos de interacción humana.
+- Ejemplo: Apagón de 2003 en el noreste de EE.UU. - demostró la interconexión y vulnerabilidad de las redes de infraestructura.
+- Construcción de la estructura social:
+  1. Externalización: individuos se relacionan entre sí
+  2. Objetivación: se nombran y categorizan las relaciones
+  3. Internalización: se aprenden y reproducen los patrones de interacción
+
+- La interconectividad induce una notable no localidad: permite la propagación de información, ideas y comportamientos a través de redes sociales y tecnológicas.
+
+.footnote[
+[1] Berger, P. L., & Luckmann, T. (1966). The Social Construction of Reality: A Treatise in the Sociology of Knowledge. Penguin Books.
+
+[2] Watts, D. J. (2003). Six degrees: The science of a connected age. WW Norton & Company.
+]
+
+---
+
+class: left middle
+
+### **El concepto de "interactoma"**
+
+- El interactoma es la estructura social manifestada y las asociaciones típicas entre los miembros del entorno.
+- La estructura emerge a medida que las interacciones se agregan en períodos más largos.
+- En biología molecular: conjunto completo de interacciones moleculares en una célula.
+- En redes sociales: conjunto de todas las interacciones y relaciones en un sistema social.
+
+- Las redes están en el corazón de las tecnologías más revolucionarias del siglo XXI:
+  - Google: mapeo y análisis de la estructura de la web
+  - Facebook, Twitter: mapeo y análisis de redes sociales
+  - CISCO: gestión de redes de comunicación
+
+.footnote[
+[1] Vidal, M., Cusick, M. E., & Barabási, A. L. (2011). Interactome networks and human disease. Cell, 144(6), 986-998.
+
+[2] Easley, D., & Kleinberg, J. (2010). Networks, crowds, and markets: Reasoning about a highly connected world. Cambridge University Press.
+]
+
+---
+
+class: middle right
+background-image: url('adrien-olichon-9zhsq3o1k60-unsplash.jpg')
+background-size: cover
+
+### **Un Modelo de Estructura Social** 
+
+---
+class: left middle
+
+### **Niveles de abstracción en la estructura social**
+
+1. Grado conceptual de abstracción: 
+   - De eventos concretos (interacciones individuales) a esquemas abstractos (roles sociales, instituciones)
+2. Nivel empírico de abstracción: 
+   - De micro-interacciones (conversaciones, transacciones) a macro-instituciones (sistemas económicos, estructuras gubernamentales)
+
+- A pesar de la diversidad de sistemas complejos, las redes comparten leyes y principios fundamentales comunes:
+  - Ley de potencia en la distribución de grados
+  - Fenómeno de "mundo pequeño"
+  - Formación de comunidades
+
+.footnote[
+[1] Watts, D. J., & Strogatz, S. H. (1998). Collective dynamics of 'small-world' networks. Nature, 393(6684), 440-442.
+
+[2] Newman, M. E. (2003). The structure and function of complex networks. SIAM Review, 45(2), 167-256.
+]
+
+---
+
+
+<img src="fig6.jpg" width="60%" style="display: block; margin: 0 auto;" />
+
+
+
+---
+
+class: center middle
+
+.w-50.fl[
+### 
+
+<img src="fig8.png" width="100%" style="display: block; margin: 0 auto;" />
+
+]
+
+.w-50.fr[
+### 
+
+<img src="fig7.png" width="90%" style="display: block; margin: 0 auto;" />
+
+]
+
+
+
+---
+
+class: left middle
+
+### **Perspectivas de Investigación Estructural**
+
+1. Enfoque conectivista:
+   - Se centra en cómo los nodos están vinculados
+   - Estudia flujos de recursos, información y influencia
+   - Ejemplo: análisis de la difusión de innovaciones en redes sociales
+
+2. Enfoque posicional:
+   - Se enfoca en cómo las partes de la estructura interactúan a través de roles
+   - Examina la formación y evolución de roles y posiciones en la red
+   - Ejemplo: estudio de jerarquías en organizaciones
+
+Ejemplos de aplicaciones:
+- Difusión de innovaciones: cómo las nuevas ideas se propagan en una red
+- Propagación de enfermedades: modelado de epidemias en redes de contacto
+- Formación de redes románticas: patrones de emparejamiento y homofilia
+
+.footnote[
+[1] Burt, R. S. (1992). Structural holes: The social structure of competition. Harvard University Press.
+
+[2] Valente, T. W. (1995). Network models of the diffusion of innovations. Hampton Press.
+]
+
+---
+class: left middle
+
+### **Tipos de preguntas causale socio-estructurales**
+
+
+<img src="fig10.png" width="90%" style="display: block; margin: 0 auto;" />
+
+
+---
+
+class: left middle
+
+### **Cuatro tipos de preguntas causales**
+
+1. Redes como causa (perspectiva conectivista)
+   - Ejemplo: Cómo la estructura de la red afecta el acceso a oportunidades laborales
+
+2. Redes como consecuencia (perspectiva conectivista)
+   - Ejemplo: Cómo se forman las amistades basadas en similitudes (homofilia)
+
+3. Roles como causa (perspectiva posicional)
+   - Ejemplo: Cómo los roles de liderazgo influyen en el comportamiento organizacional
+
+4. Roles como consecuencia (perspectiva posicional)
+   - Ejemplo: Cómo emergen roles especializados en comunidades online
+
+.footnote[
+[1] Granovetter, M. S. (1973). The strength of weak ties. American Journal of Sociology, 78(6), 1360-1380.
+
+[2] McPherson, M., Smith-Lovin, L., & Cook, J. M. (2001). Birds of a feather: Homophily in social networks. Annual Review of Sociology, 27(1), 415-444.
+]
+
+---
+
+class: middle right
+background-image: url('adrien-olichon-9zhsq3o1k60-unsplash.jpg')
+background-size: cover
+
+### **Impacto Científico y Social** 
+
+---
+class: left middle
+
+### **Impacto de la ciencia de redes**
+
+1. Económico: 
+   - Búsqueda web: algoritmos basados en estructura de red (ej. PageRank de Google)
+   - Redes sociales: modelos de negocio basados en análisis de redes (Facebook, LinkedIn)
+
+2. Salud: 
+   - Diseño de fármacos: uso de redes de interacción proteína-proteína
+   - Ingeniería metabólica: optimización de rutas metabólicas
+
+3. Seguridad: 
+   - Lucha contra el terrorismo: análisis de redes de comunicación y financieras
+   - Ciberseguridad: identificación de patrones de ataque en redes informáticas
+
+
+
+.footnote[
+[1] Barabási, A. L. (2016). Network Science. Cambridge University Press.
+
+[2] Newman, M. (2018). Networks. Oxford University Press.
+]
+
+---
+
+class: left middle
+
+### **Impacto de la ciencia de redes II**
+
+4. Epidemias: 
+   - Previsión: modelado de la propagación de enfermedades en redes de contacto
+   - Estrategias de vacunación: identificación de nodos clave en la red
+
+5. Neurociencia: 
+   - Mapeo del cerebro: proyecto Conectoma para mapear conexiones neuronales
+   - Entendimiento de enfermedades neurológicas a través de alteraciones en la red cerebral
+
+6. Gestión: 
+   - Análisis de la estructura interna de organizaciones
+   - Optimización de flujos de información y recursos en empresas
+
+
+.footnote[
+[1] Barabási, A. L. (2016). Network Science. Cambridge University Press.
+
+[2] Newman, M. (2018). Networks. Oxford University Press.
+]
+---
+
+
+
+class: middle right
+background-image: url('adrien-olichon-9zhsq3o1k60-unsplash.jpg')
+background-size: cover
+
+### **Que es una red social?** 
+
+
+---
+
+class: left middle
+
+.w-50.fl[
+### **ARS**
+
+- El análisis de redes sociales operacionaliza el pensamiento estructural.
+- Utiliza abstracciones visuales y matemáticas para capturar fenómenos relacionales.
+- Ejemplo histórico: El problema de los puentes de Königsberg (Euler, 1736).
+  - Demostró la importancia de abstraer la estructura formal de un problema.
+]
+
+.w-50.fr[
+### 
+
+<img src="fig11.png" width="100%" style="display: block; margin: 0 auto;" />
+
+]
+  
+
+.footnote[
+Fuente: Capítulo 3, "What Is a Social Network?", Network Science textbook.
+]
+
+---
+
+class: left middle
+
+
+.w-50.fl[
+### **Conceptos Fundamentales**
+
+- **Nodos (vértices)**: Objetos en la estructura, representados como puntos.
+- **Vínculos (aristas)**: Relaciones entre nodos, representadas como líneas.
+- **Grafo**: Visualización de nodos y vínculos.
+- **Red**: Definida formalmente como dos conjuntos vinculados: nodos y vínculos.
+]
+
+.w-50.fr[
+### 
+
+<img src="fig12.png" width="70%" style="display: block; margin: 0 auto;" />
+
+]
+
+.footnote[
+Fuente: Sección 3.2, "What Is a Social Network?", Network Science textbook.
+]
+
+---
+
+class: left middle
+
+
+.w-50.fl[
+### **Tipos de Redes I**
+
+1. **Redes de un modo**: 
+   - Nodos del mismo tipo (ej. personas)
+   - Vínculos directos entre nodos
+
+]
+
+.w-50.fr[
+### 
+
+<img src="fig13.png" width="70%" style="display: block; margin: 0 auto;" />
+
+]
+
+
+---
+class: left middle
+
+.w-50.fl[
+### **Tipos de Redes II**
+
+2. **Redes de dos modos (bipartitas)**:
+   - Dos tipos de nodos (ej. personas y eventos)
+   - Vínculos entre nodos de diferentes tipos
+
+]
+
+.w-50.fr[
+### 
+<img src="fig14.png" width="70%" style="display: block; margin: 0 auto;" />
+
+]
+
+---
+
+class: left middle
+
+### **Propiedades de los Vínculos**
+
+- **Dirección**: Dirigidos (asimétricos) vs. No dirigidos (simétricos)
+- **Valor**: Binarios (presencia/ausencia) vs. Valorados (con peso)
+
+Combinación de estas propiedades resulta en cuatro tipos de redes:
+1. No dirigidas, binarias
+2. Dirigidas, binarias
+3. No dirigidas, valoradas
+4. Dirigidas, valoradas
+
+
+---
+
+class: left middle
+
+### **Conceptos de Conectividad**
+
+- **Caminata (Walk)**: Secuencia de nodos y vínculos (puede repetir nodos)
+- **Camino (Path)**: Secuencia sin repetir nodos
+- **Ciclo**: Camino que empieza y termina en el mismo nodo
+- **Distancia (geodésica)**: Número de vínculos en el camino más corto entre dos nodos
+- **Densidad**: Proporción de vínculos existentes sobre el total posible
+
+---
+
+class: left middle
+
+### **Representaciones Matemáticas de Redes**
+
+1. **Matriz de Adyacencia**:
+   - Matriz cuadrada $n$ x $n$ (n = número de nodos)
+   - $X_{ij}$ representa el vínculo entre $i$ y $j$
+   - Simétrica para redes no dirigidas
+
+2. **Lista de Vínculos (Edgelist)**:
+   - Cada fila representa un vínculo
+   - Columnas: nodo origen, nodo destino (y valor si es valorada)
+
+3. **Lista de Adyacencia**:
+   - Cada nodo listado con sus nodos adyacentes
+   - Eficiente para algoritmos de búsqueda de caminos
+
+
+---
+
+class: left middle
+
+### **Ejemplo: Matriz de Adyacencia**
+
+.pull-left[
+Matriz para una red de 5 nodos:
+
+|   | A | B | C | D | E |
+|---|---|---|---|---|---|
+| A | 0 | 1 | 0 | 1 | 0 |
+| B | 1 | 0 | 1 | 0 | 1 |
+| C | 0 | 1 | 0 | 1 | 0 |
+| D | 1 | 0 | 1 | 0 | 0 |
+| E | 0 | 1 | 0 | 0 | 0 |
+]
+
+.pull-right[
+- 0 indica ausencia de vínculo
+- 1 indica presencia de vínculo
+- La diagonal principal es 0 (sin auto-vínculos)
+- Es simétrica para redes no dirigidas
+]
+
+
+---
+
+class: left middle
+
+### **Ejemplo: Lista de Vínculos (Edgelist)**
+
+.pull-left[
+Lista para la misma red de 5 nodos:
+
+| Origen | Destino |
+|--------|---------|
+| A      | B       |
+| A      | D       |
+| B      | C       |
+| B      | E       |
+| C      | D       |
+]
+
+.pull-right[
+- Cada fila representa un vínculo
+- Más eficiente en espacio para redes dispersas
+- Fácil de extender para redes valoradas o multi-relacionales
+]
+
+
+---
+
+class: left middle
+
+### **Ejemplo: Lista de Adyacencia**
+
+.pull-left[
+Lista para la misma red de 5 nodos:
+
+| Nodo | Adyacentes |
+|------|------------|
+| A    | B, D       |
+| B    | A, C, E    |
+| C    | B, D       |
+| D    | A, C       |
+| E    | B          |
+]
+
+.pull-right[
+- Cada nodo listado con sus vecinos
+- Eficiente para algoritmos de búsqueda
+- Útil para redes con grados muy variables
+]
+
+
+---
+
+class: middle right
+background-image: url('adrien-olichon-9zhsq3o1k60-unsplash.jpg')
+background-size: cover
+
+### **Muchas Gracias**
+#### **Esta presentación fue realizada con el paquete [Xaringan](https://slides.yihui.org/xaringan), diseñado para entorno [R](https://www.r-project.org/)**
+
+
+
+
+
+
+
+
