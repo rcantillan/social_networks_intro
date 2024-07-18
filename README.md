@@ -1,3 +1,7 @@
+
+![...](img/img_1.jpg)
+
+
 # Introducción al Análisis de Redes Sociales
 
 El Análisis de Redes Sociales (ARS) ofrece una perspectiva única para comprender las estructuras sociales y sus dinámicas. Este curso introduce a los estudiantes en este campo, combinando teoría, metodología y aplicaciones prácticas.
