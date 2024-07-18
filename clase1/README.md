@@ -1,13 +1,13 @@
 ---
-title: LM2C2
-subtitle: 
-date: 2023-12-11
-where: LM2C2
+title: Estructura social y Ciencia de redes 
+subtitle: Introducción a sus principios analíticos
+date: 2024-07-18
+where: Santiago, Chile
 twitter: "@ricantillan"
 web: https://rcantillan.rbind.io
 ---
 
-# Segregación de género y contagio en el mercado ocupacional Chileno 2009 - 2020
+# Clase 1
 
 ## Descripción 
 
