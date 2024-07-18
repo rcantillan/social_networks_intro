@@ -6,7 +6,7 @@
 
 El Análisis de Redes Sociales (ARS) ofrece una perspectiva única para comprender las estructuras sociales y sus dinámicas. Este curso introduce a los estudiantes en este campo, combinando teoría, metodología y aplicaciones prácticas.
 
-## ¿Qué aprenderá?
+## ¿Qué se aprenderá?
 
 1. Fundamentos del ARS:
    - Ontología relacional: ¿cómo las relaciones dan forma a la realidad social?
@@ -23,7 +23,7 @@ El Análisis de Redes Sociales (ARS) ofrece una perspectiva única para comprend
    - Casos de estudio en diversos campos
    - Proyectos prácticos de análisis de redes utilizando R
 
-## Por qué es relevante
+## ¿Por qué es relevante?
 
 El ARS proporciona herramientas para:
 - Revelar patrones ocultos en las interacciones sociales
